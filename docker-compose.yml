@@ -1,0 +1,54 @@
+version: '3.9'
+
+services:
+
+  postgres:
+    container_name: eduvirtual-postgres
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: transaction
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: educacaovirtual2025
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - transaction
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d transaction" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    container_name: eduvirtual-adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  transaction-api:
+    image: educacaovirtual/transaction:1.0
+    container_name: eduvirtual-transaction
+    restart: always
+    ports:
+      - 8081:8080
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/transaction
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: educacaovirtual2025
+    networks:
+      - transaction
+
+volumes:
+  postgres:
+    driver: local
+
+networks:
+  transaction:
+    driver: bridge
