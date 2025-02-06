@@ -1,15 +1,14 @@
-name: cicd
+name: CICD
 
 on:
   push:
-    branches:
-      - master
+    branches: [master]
 
 jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-          - name: Checkout
+          - name: Checkout source
             uses: actions/checkout@v1
           - name: Setup Java
             uses: actions/setup-java@v1
@@ -22,10 +21,10 @@ jobs:
             run: mvn test
           - name: Login to Docker Hub
             uses: docker/login-action@v1
-            run: docker login -u ${{ secrets.DOCKERHUB_USERNAME }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+            run: docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_PASSWORD}}
           - name: Build Docker Image
             run: docker build -t educacaovirtualdocker/transaction:1.0 .
-          - name: Push Docker Image
+          - name: Publish Docker Image to Docker Hub
             run: docker push educacaovirtualdocker/transaction:1.0
 
     deploy:
